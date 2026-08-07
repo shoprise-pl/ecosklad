@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Boty, ktore nie wnosza ruchu, a obciazaja serwer
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+Sitemap: https://ecosklad.pl/sitemap.xml
