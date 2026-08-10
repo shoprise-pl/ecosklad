@@ -3,6 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- =====================================================================
+     ZGODY I POMIAR
+     Do uzupelnienia dwa identyfikatory, opis krok po kroku w ANALITYKA.md:
+       1. data-cbid  ponizej  -> identyfikator domeny z Cookiebot
+       2. GTM-XXXXXXX ponizej -> identyfikator kontenera Google Tag Manager
+     GA4, Google Ads i Meta Pixel konfiguruje sie juz wewnatrz GTM,
+     nie wkleja sie ich do kodu strony.
+     ===================================================================== -->
+
+<script data-cookieconsent="ignore">
+/* Google Consent Mode v2.
+   Zanim cokolwiek zdazy sie zaladowac, kazda zgoda jest odrzucona.
+   To wymog dla reklamodawcow kierujacych reklamy na EOG (od 6 marca 2024).
+   Cookiebot podniesie te wartosci dopiero po kliknieciu uzytkownika w banerze.
+   wait_for_update daje mu 500 ms, zeby zdazyl przed pierwszym tagiem. */
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments)}
+gtag('consent','default',{
+  ad_storage:'denied',
+  ad_user_data:'denied',
+  ad_personalization:'denied',
+  analytics_storage:'denied',
+  functionality_storage:'denied',
+  personalization_storage:'denied',
+  security_storage:'granted',
+  wait_for_update:500
+});
+/* bez zgody Google nie wysyla identyfikatorow reklamowych... */
+gtag('set','ads_data_redaction',true);
+/* ...a informacje o kliknietej reklamie przenosi w adresie URL zamiast w ciasteczku */
+gtag('set','url_passthrough',true);
+</script>
+
+<!-- Cookiebot. Musi stac tuz po Consent Mode i przed reszta skryptow,
+     inaczej auto-blokowanie nie zdazy przechwycic pozostalych tagow. -->
+<script id="Cookiebot" src="https://consent.cookiebot.com/uc.js"
+        data-cbid="WKLEJ-ID-COOKIEBOT" data-blockingmode="auto" type="text/javascript"></script>
+
+<!-- Google Tag Manager. data-cookieconsent="ignore" jest konieczne:
+     GTM sam zarzadza zgodami przez Consent Mode, wiec Cookiebot nie moze go zablokowac. -->
+<script data-cookieconsent="ignore">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+
 <title>Kalkulator opału: ile węgla i ekogroszku na sezon | ECOSKŁAD</title>
 <meta name="description" content="Kalkulator zużycia opału na sezon. Podaj metraż, izolację i typ kotła, a policzymy ile ekogroszku, węgla lub pelletu potrzebujesz i ile to kosztuje.">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -836,6 +883,10 @@ header,section,footer,.wrap,.mcall,.topbar,.calc-panel,.calc-out{overflow-x:clip
   input[type="number"],input[type="search"],select,textarea{
     font-size:16px}
 }
+
+/* linki prawne w dolnym pasku stopki */
+.foot-bottom a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.foot-bottom a:hover{color:var(--ember)}
 </style>
 <script type="application/ld+json">
 {
@@ -926,6 +977,10 @@ header,section,footer,.wrap,.mcall,.topbar,.calc-panel,.calc-out{overflow-x:clip
 </script>
 </head>
 <body>
+<!-- Google Tag Manager, wersja dla wylaczonego JavaScriptu -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
 
 <!-- ============ TOP BAR ============ -->
 <div class="topbar">
@@ -1267,7 +1322,9 @@ header,section,footer,.wrap,.mcall,.topbar,.calc-panel,.calc-out{overflow-x:clip
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 ECOSKŁAD Skład Opału. Wszelkie prawa zastrzeżone.</span>
+      <span>© 2026 ECOSKŁAD Skład Opału. Wszelkie prawa zastrzeżone.
+        &middot; <a href="/polityka-prywatnosci">Polityka prywatności i cookies</a>
+        &middot; <a href="#" onclick="if(window.Cookiebot){Cookiebot.renew()};return false">Ustawienia cookies</a></span>
       <div class="pays"><span>Przelew</span><span>BLIK</span><span>Gotówka</span><span>Faktura VAT</span></div>
     </div>
   </div>
@@ -1707,10 +1764,41 @@ header,section,footer,.wrap,.mcall,.topbar,.calc-panel,.calc-out{overflow-x:clip
       pole.value=opis;
       if(temat) temat.value='Wycena opału i dostawy';
       setTimeout(function(){pole.focus({preventScroll:true})},450);
+      /* mikrokonwersja: ktos policzyl zapotrzebowanie i przenosi je do formularza.
+         Dobry sygnal do remarketingu - jeszcze nie lead, ale juz gorący ruch. */
+      window.dataLayer=window.dataLayer||[];
+      window.dataLayer.push({
+        event:'kalkulator_do_wyceny',
+        paliwo:r.f.nazwa,
+        tony:Math.round(r.kg/100)/10,
+        szacowany_koszt:Math.round(r.koszt/10)*10,
+        metraz:num(el.metraz,150)
+      });
     });
   }
 
   przelicz();
+})();
+</script>
+<script>
+/* Klikniecia w numer telefonu i w adres e-mail jako zdarzenia dla GTM.
+   Na telefonie to najczestsza sciezka kontaktu, wiec bez tego pomiar
+   pokazywalby tylko czesc realnych zapytan. */
+(function(){
+  document.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="tel:"],a[href^="mailto:"]'):null;
+    if(!a) return;
+    var href=a.getAttribute('href')||'';
+    var tel=href.indexOf('tel:')===0;
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({
+      event: tel?'click_to_call':'click_to_mail',
+      kontakt: href.replace(/^(tel:|mailto:)/,''),
+      umiejscowienie: a.closest('header')?'naglowek'
+        : a.closest('footer')?'stopka'
+        : a.closest('.mcall')?'pasek_mobilny':'tresc'
+    });
+  },true);
 })();
 </script>
 </body>
