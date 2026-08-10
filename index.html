@@ -760,6 +760,55 @@ img{display:block;max-width:100%;height:auto}
   .map-frame iframe{height:230px}
 }
 
+
+/* ============ BEZ POZIOMEGO PRZEWIJANIA ============ */
+/* clip zamiast hidden: nie tworzy kontenera przewijania, wiec sticky header dziala dalej */
+html,body{overflow-x:clip}
+body{overflow-wrap:break-word}
+img,svg,video,iframe,table{max-width:100%}
+
+/* elementy siatek maja domyslnie min-width:auto i nie kurcza sie ponizej swojej tresci,
+   przez co dluga zawartosc rozpycha cala strone */
+:where(.calc-grid,.calc-fields,.contact-grid,.form-grid,.prod-grid,.step-grid,.rev-grid,
+.del-grid,.del-list,.area-grid,.cat-grid,.why-grid,.foot-grid,.cinfo,.out-rows,.out-row,
+.location-copy,.stat-row) > *{min-width:0}
+
+/* dlugie ciagi bez spacji: adresy e-mail, URL-e, numery */
+a[href^="mailto:"],a[href^="tel:"],.seo-copy a{overflow-wrap:anywhere}
+
+/* tabela porownania: na waskich ekranach zamiast sciskania kolumn - karty */
+.table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fuel-table{min-width:520px}
+
+@media(max-width:640px){
+  .table-scroll{overflow-x:visible}
+  .fuel-table{min-width:0;font-size:.9rem}
+  .fuel-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+  .fuel-table tbody tr{display:block;background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:4px 15px 8px;margin-bottom:12px}
+  .fuel-table tbody tr.is-active{background:var(--ember-soft);border-color:var(--ember)}
+  .fuel-table tbody td{display:flex;justify-content:space-between;align-items:baseline;
+    gap:18px;padding:9px 0;border-bottom:1px dashed var(--line);text-align:right}
+  .fuel-table tbody td::before{content:attr(data-l);flex:none;text-align:left;
+    font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;
+    font-weight:600;color:var(--slate-2)}
+  .fuel-table tbody td:first-child{display:block;text-align:left;font-weight:700;
+    font-size:1.02rem;padding:10px 0 9px;border-bottom:1px solid var(--line)}
+  .fuel-table tbody td:first-child::before{content:none}
+  .fuel-table tbody td:last-child{border-bottom:0}
+}
+
+/* ---- duze liczby w wyniku kalkulatora ----
+   Intl.NumberFormat('pl-PL') rozdziela tysiace TWARDA spacja (U+00A0), ktora nie jest
+   miejscem lamania - "1 234 567 kWh" to dla przegladarki jedno dlugie slowo.
+   Dlatego font skaluje sie do szerokosci ekranu i jawnie pozwalamy na lamanie. */
+.out-big .n{font-size:clamp(1.55rem,7vw,2.5rem);overflow-wrap:anywhere}
+.out-cost .n{font-size:clamp(1.3rem,5.6vw,1.9rem);overflow-wrap:anywhere}
+.out-row{flex-wrap:wrap}
+.out-row span{flex:1 1 auto}
+.out-row b{white-space:normal;overflow-wrap:anywhere;text-align:right;margin-left:auto}
+.fuel-table td,.fuel-table th{overflow-wrap:anywhere}
 </style>
 <script type="application/ld+json">
 {
