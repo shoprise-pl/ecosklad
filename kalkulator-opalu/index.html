@@ -807,6 +807,21 @@ a[href^="mailto:"],a[href^="tel:"],.seo-copy a{overflow-wrap:anywhere}
 .out-row span{flex:1 1 auto}
 .out-row b{white-space:normal;overflow-wrap:anywhere;text-align:right;margin-left:auto}
 .fuel-table td,.fuel-table th{overflow-wrap:anywhere}
+
+/* ---- druga warstwa przycinania ----
+   overflow-x:clip na html/body NIE obejmuje elementow position:fixed
+   (dolny pasek z telefonem), bo te pozycjonuja sie wzgledem viewportu.
+   Dlatego przycinamy takze sekcje i sam pasek.
+   Uzywamy clip, nie hidden - hidden tworzy kontener przewijania i zepsulby
+   sticky w naglowku oraz w panelu wyniku kalkulatora. */
+header,section,footer,.wrap,.mcall,.topbar,.calc-panel,.calc-out{overflow-x:clip}
+
+/* .btn ma globalnie white-space:nowrap, wiec dluga etykieta typu
+   "Wyslij to wyliczenie do wyceny" nie miesci sie w waskiej kolumnie */
+.btn{max-width:100%}
+@media(max-width:520px){
+  .btn{white-space:normal;text-align:center;line-height:1.3}
+}
 </style>
 <script type="application/ld+json">
 {
